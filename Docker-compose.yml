@@ -7,9 +7,6 @@ services:
       - "8000:8000"
     volumes:
       - ./backend/db.sqlite3:/app/db.sqlite3  # проброс БД
-      - ./backend:/app  # для разработки (можно удалить в production)
-    # env_file:
-    #   - .env
     restart: unless-stopped
     networks:
       - app-network
@@ -18,13 +15,24 @@ services:
     build: ./stack_service_bot
     volumes:
       - ./stack_service_bot:/app  # для разработки
-    # env_file:
-    #   - .env
     depends_on:
       - backend
     restart: unless-stopped
     networks:
       - app-network
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./backend/static:/app/static
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - app-network
+
 
 networks:
   app-network:
