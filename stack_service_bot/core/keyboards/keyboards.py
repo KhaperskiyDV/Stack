@@ -1,5 +1,41 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
+class Keyboards:
+    def __init__(self, is_admin: bool = False):
+        self.is_admin = is_admin
+
+    def main_kb(self):
+        if self.is_admin:
+            return InlineKeyboardMarkup(inline_keyboard = [
+            [ InlineKeyboardButton(text="Добавить устройство", callback_data='add_device')],
+            [ InlineKeyboardButton(text="Поиск устройства", callback_data='search_device')],],)
+        else:
+            return InlineKeyboardMarkup(inline_keyboard = [            
+            [ InlineKeyboardButton(text="Поиск устройства", callback_data='search_device')],],)
+
+    def object_actions_kb(self):
+        if self.is_admin:
+            return InlineKeyboardMarkup(inline_keyboard = [
+                [InlineKeyboardButton(text="Добавить еще одно устройство", callback_data="add_another_device")],
+                [InlineKeyboardButton(text="В главное меню", callback_data="main_menu")],])
+        else: 
+            return InlineKeyboardMarkup(inline_keyboard = [
+                [InlineKeyboardButton(text="В главное меню", callback_data="main_menu")],
+        ])
+
+    def device_actions_kb(self):
+        if self.is_admin: 
+            return InlineKeyboardMarkup (inline_keyboard =  [
+            [InlineKeyboardButton(text="Редактировать", callback_data="edit_device")],
+            [InlineKeyboardButton(text="Назад к списку устройств", callback_data="back_to_device_list")],
+        ])
+        else:
+            return InlineKeyboardMarkup (inline_keyboard =  [
+            [InlineKeyboardButton(text="Назад к списку устройств", callback_data="back_to_device_list")],
+        ])
+
+
+
 main_kb = InlineKeyboardMarkup(
     inline_keyboard=[
             [ InlineKeyboardButton(text="Добавить устройство", callback_data='add_device')],
@@ -16,13 +52,13 @@ add_device_finish_kb = InlineKeyboardMarkup(
    
 )
 
-DEVICE_TYPES = {
-    "switch": "Коммутатор",
-    "registrator": "Регистратор",
-    "server": "Сервер",
-    "camera": "Камера",
+# DEVICE_TYPES = {
+#     "switch": "Коммутатор",
+#     "registrator": "Регистратор",
+#     "server": "Сервер",
+#     "camera": "Камера",
     
-}
+# }
 
 def get_device_types_kb(data: list[dict]) -> InlineKeyboardMarkup:
     """Генерирует инлайн-клавиатуру с типами устройств"""
@@ -59,9 +95,7 @@ def get_object_actions_kb():
 def get_device_actions_kb():
     buttons = [
         [InlineKeyboardButton(text="Редактировать", callback_data="edit_device")],
-        # [InlineKeyboardButton(text="Добавить еще устройство", callback_data="add_another_device")],
         [InlineKeyboardButton(text="Назад к списку устройств", callback_data="back_to_device_list")],
-        # [InlineKeyboardButton(text="В главное меню", callback_data="main_menu")]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 

@@ -49,7 +49,8 @@ async def update_device_api(id:int, device_data:dict):
 @user_private_router.message(Command('start', 'run'))
 async def get_start(message: Message, bot: Bot):
     user_status = await get_user_status_api(message.from_user.id)
-    if 'is_superuser' in user_status:
+    if  user_status['registred']:
+        main_kb = Keyboards(user_status['is_superuser']).main_kb()
         await message.answer(f'Привет, {message.from_user.first_name}! ', reply_markup=main_kb)
     else:
         await message.answer(f'Привет, {message.from_user.first_name}!\n'
@@ -57,6 +58,7 @@ async def get_start(message: Message, bot: Bot):
                              f'Передайте ему свой ID: {message.from_user.id}')
 
 class ObjectStates(StatesGroup):
+    user_name = State()
     object_search_text = State()
     object_search_result = State()
     object_selected = State()
@@ -106,7 +108,9 @@ async def process_search_text(message: Message, state: FSMContext):
         await message.answer("Объекты не найдены. Попробуйте снова.")
         return
     
-    await state.update_data(object_search_text=search_text, object_search_result=objects)
+    await state.update_data(object_search_text=search_text, 
+                            object_search_result=objects,
+                            user_name=message.from_user.id)
     await state.set_state(ObjectStates.object_search_result)
     await message.answer(
         f'Найдено объектов: {len(objects)}\nВыберите нужный:',
@@ -159,12 +163,16 @@ async def process_info_device_after_object_selection(callback: CallbackQuery, st
     await state.update_data(device_list=object_devices_list)
     
     if not object_devices_list:
+        
+        user_status = await get_user_status_api(data['user_name'])
+        object_actions_kb = Keyboards(user_status['is_superuser']).object_actions_kb()
+
         await callback.message.edit_text(
             f'Выбран объект:\n'
             f'Название: {selected_object["name"]}\n'
             f'Адрес: {selected_object["adress"]}\n\n'
             f'У данного объекта нет устройств.',
-            reply_markup=get_object_actions_kb()
+            reply_markup=object_actions_kb
         )
         await state.set_state(DeviceInfo.device_actions)
     else:
@@ -234,7 +242,6 @@ async def process_device_login(message: Message, state: FSMContext):
         return
     
     await state.update_data(device_login=message.text.strip())
-    await asyncio.sleep(1)
     await message.delete()
     await state.set_state(DeviceAdd.device_password)
     
@@ -246,7 +253,6 @@ async def process_device_login(message: Message, state: FSMContext):
 @user_private_router.message(DeviceAdd.device_password)
 async def process_device_password(message: Message, state: FSMContext):
     await state.update_data(device_password=message.text)
-    await asyncio.sleep(1)
     await message.delete()
     await state.set_state(DeviceAdd.device_description)
     await message.answer('Введите описание устройства:')
@@ -319,7 +325,8 @@ async def process_device_list(callback: CallbackQuery, state: FSMContext):
     
     await state.update_data(device_selected=selected_device)
     device_type = await get_device_type_api(selected_device['type'])
-    
+    user_status = await get_user_status_api(data['user_name'])
+    device_actions_kb = Keyboards(user_status['is_superuser']).device_actions_kb()
     await callback.message.edit_text(
         f'Выбрано устройство:\n'
         f'Тип: {device_type["name"]}\n'
@@ -329,7 +336,7 @@ async def process_device_list(callback: CallbackQuery, state: FSMContext):
         f'Логин: {selected_device["login"]}\n'
         f'Пароль: {selected_device["password"]}\n'
         f'Описание: {selected_device["description"]}',
-        reply_markup=get_device_actions_kb()
+        reply_markup=device_actions_kb
     )
     await state.set_state(DeviceInfo.device_actions)
     await callback.answer()
@@ -484,6 +491,9 @@ async def back_to_objects(callback: CallbackQuery, state: FSMContext):
 
 @user_private_router.callback_query(DeviceInfo.device_actions, F.data == 'main_menu')
 async def back_to_objects(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    user_data = await get_user_status_api(data['user_name'])
+    main_kb = Keyboards(user_data['is_superuser']).main_kb()
     await callback.message.answer('Вы вернулись в главное меню', reply_markup=main_kb)
     await state.clear()
     await callback.answer()

@@ -64,9 +64,12 @@ class UserViewSet(viewsets.ModelViewSet):
             user = User.objects.get(username=username)
             return Response({
                 'username': username,
-                'is_superuser': user.is_superuser
+                'is_superuser': user.is_superuser,
+                'registred': True
             })
         except User.DoesNotExist:
             return Response({
+                'username': username,
+                'registred': False,
                 'error': 'User not found'
             }, status=404)

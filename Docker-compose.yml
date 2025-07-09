@@ -6,7 +6,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./backend/db.sqlite3:/app/db.sqlite3  # проброс БД
+      - ./backend/db.sqlite3:/app/db.sqlite3
     restart: unless-stopped
     networks:
       - app-network
@@ -14,7 +14,7 @@ services:
   bot:
     build: ./stack_service_bot
     volumes:
-      - ./stack_service_bot:/app  # для разработки
+      - ./stack_service_bot:/app
     depends_on:
       - backend
     restart: unless-stopped
