@@ -52,14 +52,6 @@ add_device_finish_kb = InlineKeyboardMarkup(
    
 )
 
-# DEVICE_TYPES = {
-#     "switch": "Коммутатор",
-#     "registrator": "Регистратор",
-#     "server": "Сервер",
-#     "camera": "Камера",
-    
-# }
-
 def get_device_types_kb(data: list[dict]) -> InlineKeyboardMarkup:
     """Генерирует инлайн-клавиатуру с типами устройств"""
     buttons = []
@@ -107,14 +99,19 @@ def cancel_edit_kb():
 
 def get_device_edit_kb():
     buttons = [
-        [InlineKeyboardButton(text="Название", callback_data="edit_name")],
-        [InlineKeyboardButton(text="Модель", callback_data="edit_model")],
-        [InlineKeyboardButton(text="IP", callback_data="edit_ip")],
-        [InlineKeyboardButton(text="Логин", callback_data="edit_login")],
-        [InlineKeyboardButton(text="Пароль", callback_data="edit_password")],
-        [InlineKeyboardButton(text="Описание", callback_data="edit_description")],
-        [InlineKeyboardButton(text="Отменить", callback_data="cancel_edit")],
-    ]
+            [
+                InlineKeyboardButton(text="Название", callback_data="edit_name"),
+                InlineKeyboardButton(text="Модель", callback_data="edit_model")
+            ],
+            [
+                InlineKeyboardButton(text="IP", callback_data="edit_ip"),
+                InlineKeyboardButton(text="Логин", callback_data="edit_login")
+            ],
+            [
+                InlineKeyboardButton(text="Пароль", callback_data="edit_password"),
+                InlineKeyboardButton(text="Отменить", callback_data="cancel_edit")
+            ]
+        ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 def get_cancel_edit_kb():

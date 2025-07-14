@@ -8,6 +8,7 @@ class DeviceType(models.Model):
     class Meta:
         verbose_name = 'Тип устройства'
         verbose_name_plural = 'Типы устройств'
+        
     
 
 
@@ -19,7 +20,7 @@ class Object(models.Model):
     class Meta:
         verbose_name = 'Объект'
         verbose_name_plural = 'Объекты'
-
+        ordering = ['name']
 
 class Device(models.Model):
     type = models.ForeignKey(DeviceType, on_delete=models.CASCADE, verbose_name='Тип устройства')
@@ -36,3 +37,4 @@ class Device(models.Model):
     class Meta:
         verbose_name = 'Устройство'
         verbose_name_plural = 'Устройства'
+        ordering = ['object', 'name']
